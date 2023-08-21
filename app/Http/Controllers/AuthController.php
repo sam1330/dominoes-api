@@ -23,27 +23,27 @@ class AuthController extends Controller
             $validateUser = Validator::make($request->all(), 
             [
                 'name' => 'required',
-                'email' => 'required|email|unique:users,email',
+                'username' => 'required|unique:users,username',
                 'password' => 'required'
             ]);
 
             if($validateUser->fails()){
                 return response()->json([
                     'status' => false,
-                    'message' => 'validation error',
+                    'message' => 'Favor completar todos los campos',
                     'errors' => $validateUser->errors()
                 ], 401);
             }
 
             $user = User::create([
                 'name' => $request->name,
-                'email' => $request->email,
+                'username' => $request->username,
                 'password' => Hash::make($request->password)
             ]);
 
             return response()->json([
                 'status' => true,
-                'message' => 'User Created Successfully',
+                'message' => 'Usuario Creado Con Éxito',
                 'token' => $user->createToken("API TOKEN")->plainTextToken
             ], 200);
 
@@ -65,7 +65,7 @@ class AuthController extends Controller
         try {
             $validateUser = Validator::make($request->all(), 
             [
-                'email' => 'required|email',
+                'username' => 'required',
                 'password' => 'required'
             ]);
 
@@ -77,14 +77,14 @@ class AuthController extends Controller
                 ], 401);
             }
 
-            if(!Auth::attempt($request->only(['email', 'password']))){
+            if(!Auth::attempt($request->only(['username', 'password']))){
                 return response()->json([
                     'status' => false,
-                    'message' => 'Email & Password does not match with our record.',
+                    'message' => 'Username & Password does not match with our record.',
                 ], 401);
             }
 
-            $user = User::where('email', $request->email)->first();
+            $user = User::where('username', $request->username)->first();
 
             return response()->json([
                 'status' => true,
